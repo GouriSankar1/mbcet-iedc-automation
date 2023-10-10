@@ -3,11 +3,11 @@
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
-const char WIFI_SSID[] = "your-ssid";
-const char WIFI_PASS[] = "your-password";
+const char WIFI_SSID[] = "IOT-2.4G";
+const char WIFI_PASS[] = "2022iedcmbcet";
 
-const char DEVICE_ID[] = "your-device-id";
-const char THING_ID[] = "your-thing-id";
+const char DEVICE_ID[] = "486ca265-3779-43dd-8d6a-723e7fda6466";
+const char THING_ID[] = "3f92035e-2bb9-4917-b099-3df9cdf26313";
 
 const int RELAY_PIN_1 = D1; // GPIO pin for Relay 1
 const int RELAY_PIN_2 = D2; // GPIO pin for Relay 2
