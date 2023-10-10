@@ -1,98 +1,41 @@
 #include <ArduinoIoTCloud.h>
-#include <Arduino_LSM6DS3.h>
-#include <WiFiNINA.h>  // Use WiFiNINA library for compatibility with NodeMCU
+#include <WiFiConnectionManager.h>
 
-// Define your Wi-Fi credentials
-const char WIFI_SSID[] = "IOT-2.4G";       // Replace with your Wi-Fi network SSID
-const char WIFI_PASS[] = "2022iedcmbcet";  // Replace with your Wi-Fi network password
+const char THING_ID[] = "YOUR_THING_ID";
+const char DEVICE_ID[] = "YOUR_DEVICE_ID";
+const char SSID[] = "YOUR_WIFI_SSID";
+const char PASSWORD[] = "YOUR_WIFI_PASSWORD";
 
-// Define your IoT Cloud Thing ID
-const char THING_ID[] = "486ca265-3779-43dd-8d6a-723e7fda6466";  // Replace with your IoT Cloud Thing ID
+int relayPins[] = {D1, D2, D3};  // Define the pins connected to the relays
+const int NUM_RELAYS = 3;       // Number of relays
 
-
-// Define three switch properties
-CloudSwitchProperty switch1Property;
-CloudSwitchProperty switch2Property;
-CloudSwitchProperty switch3Property;
-
-bool switch1 = false;
-bool switch2 = false;
-bool switch3 = false;
-
-// Define three relay pins
-const int RELAY1_PIN = D1; // Replace with the actual pin numbers for your setup
-const int RELAY2_PIN = D2;
-const int RELAY3_PIN = D3;
-
-void onSwitch1Change();
-void onSwitch2Change();
-void onSwitch3Change();
+void onSwitchChange(int switchIndex) {
+  // Callback function to handle changes in the switch state
+  if (ArduinoIoTCloud.getProperty(switchIndex)) {
+    digitalWrite(relayPins[switchIndex], ArduinoIoTCloud.getProperty(switchIndex));
+  }
+}
 
 void setup() {
-  Serial.begin(115200);
-
-  // Connect to Wi-Fi
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
+  for (int i = 0; i < NUM_RELAYS; i++) {
+    pinMode(relayPins[i], OUTPUT);
   }
 
-  pinMode(RELAY1_PIN, OUTPUT);
-  pinMode(RELAY2_PIN, OUTPUT);
-  pinMode(RELAY3_PIN, OUTPUT);
+  // Initialize Arduino IoT Cloud
+  ArduinoIoTCloud.begin(THING_ID, DEVICE_ID, SSID, PASSWORD);
+  
+  // Add three switch properties (Switch1, Switch2, Switch3)
+  for (int i = 0; i < NUM_RELAYS; i++) {
+    ArduinoIoTCloud.addProperty(i, "Switch" + String(i + 1), INT, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    ArduinoIoTCloud.onPropertyChange(i, [i]() { onSwitchChange(i); });
+  }
 
-  // Initialize IoT Cloud
-  ArduinoCloud.begin(ArduinoIoTPreference.autoReconnect);
-
-  // Set your IoT Cloud Thing ID
-  ArduinoCloud.setThingId(THING_ID);
-
-  // Initialize switch properties
-  switch1Property = ArduinoCloud.addProperty(switch1, "boolean", "Switch1", READ_WRITE);
-  switch2Property = ArduinoCloud.addProperty(switch2, "boolean", "Switch2", READ_WRITE);
-  switch3Property = ArduinoCloud.addProperty(switch3, "boolean", "Switch3", READ_WRITE);
-
-  // Register callback functions for switch changes
-  ArduinoCloud.onChange(switch1Property, onSwitch1Change);
-  ArduinoCloud.onChange(switch2Property, onSwitch2Change);
-  ArduinoCloud.onChange(switch3Property, onSwitch3Change);
+  // Add your additional setup code here if needed
 }
 
 void loop() {
-  ArduinoCloud.update();
-  // Your additional code can go here if needed
-}
+  // Update the Arduino IoT Cloud connection
+  ArduinoIoTCloud.update();
 
-void onSwitch1Change() {
-  // Handle switch1 change here
-  if (switch1) {
-    // Switch 1 is turned on, perform corresponding action
-    digitalWrite(RELAY1_PIN, HIGH); // Turn on relay 1
-  } else {
-    // Switch 1 is turned off, perform corresponding action
-    digitalWrite(RELAY1_PIN, LOW); // Turn off relay 1
-  }
-}
-
-void onSwitch2Change() {
-  // Handle switch2 change here
-  if (switch2) {
-    // Switch 2 is turned on, perform corresponding action
-    digitalWrite(RELAY2_PIN, HIGH); // Turn on relay 2
-  } else {
-    // Switch 2 is turned off, perform corresponding action
-    digitalWrite(RELAY2_PIN, LOW); // Turn off relay 2
-  }
-}
-
-void onSwitch3Change() {
-  // Handle switch3 change here
-  if (switch3) {
-    // Switch 3 is turned on, perform corresponding action
-    digitalWrite(RELAY3_PIN, HIGH); // Turn on relay 3
-  } else {
-    // Switch 3 is turned off, perform corresponding action
-    digitalWrite(RELAY3_PIN, LOW); // Turn off relay 3
-  }
+  // Add your additional loop code here if needed
 }
