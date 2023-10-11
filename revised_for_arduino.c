@@ -1,5 +1,6 @@
 #include <ArduinoIoTCloud.h>
-#include <WiFiConnectionManager.h>
+//#include <WiFiConnectionManager.h>
+#include "thingProperties.h"
 
 const char THING_ID[] = "YOUR_THING_ID";
 const char DEVICE_ID[] = "YOUR_DEVICE_ID";
